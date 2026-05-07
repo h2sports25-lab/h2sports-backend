@@ -8,8 +8,20 @@
     "start": "node server.js"
   },
   "dependencies": {
-    "express": "^4.18.2",
-    "mercadopago": "^1.5.0",
-    "cors": "^2.8.5"
-  }
+    "body-parser": "^2.2.2",
+    "cors": "^2.8.6",
+    "express": "^4.22.1",
+    "mercadopago": "^2.12.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/h2sports25-lab/h2sports-backend.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/h2sports25-lab/h2sports-backend/issues"
+  },
+  "homepage": "https://github.com/h2sports25-lab/h2sports-backend#readme"
 }

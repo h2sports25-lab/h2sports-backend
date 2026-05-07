@@ -1,48 +1,79 @@
 import express from "express";
 import cors from "cors";
-import { MercadoPagoConfig, Preference } from "mercadopago";
+import pkg from "mercadopago";
+
+const { MercadoPagoConfig, Payment } = pkg;
 
 const app = express();
 
-app.use(cors());
+app.use(cors({ origin: "*" }));
 app.use(express.json());
 
+// 🔐 Config
 const client = new MercadoPagoConfig({
-  accessToken: "APP_USR-8465927762797185-040710-ec5e0d6f90572862472bf41950656764-3319444395"
+  accessToken: "APP_USR-5416772088524473-042915-734b5835dffc44c01a9fcb044b1d05b8-3320971428"
 });
 
-app.post("/criar-pagamento-mp", async (req, res) => {
+// rota teste
+app.get("/", (req, res) => {
+  res.send("API funcionando 🚀");
+});
+
+// 🔥 pagamento
+app.post("/process_payment", async (req, res) => {
+console.log("BODY RECEBIDO:", req.body);
   try {
-    const items = req.body.items;
+    const {
+      token,
+      transaction_amount,
+      installments,
+      payment_method_id,
+      payer
+    } = req.body;
 
-    const mpItems = items.map(item => ({
-      title: item.title,
-      unit_price: Number(item.price),
-      quantity: 1
-    }));
-
-    const preference = new Preference(client);
-
-    const response = await preference.create({
-      body: {
-        items: mpItems
+    const paymentData = {
+      transaction_amount: Number(transaction_amount),
+      token: token,
+      description: "Compra H2Sports",
+      installments: Number(installments),
+      payment_method_id: payment_method_id,
+      payer: {
+        email: payer.email || "test_user_123456@testuser.com",
+        identification: payer.identification
       }
-    });
+    };
 
-    res.json({
-      url: response.init_point
-    });
+    
+    const payment = new Payment(client);
+
+    const response = await payment.create({ body: paymentData });
+
+console.log("STATUS:", response.status);
+console.log("DETAIL:", response.status_detail);
+console.log("RESPOSTA COMPLETA:", JSON.stringify(response, null, 2));
+
+res.json(response);
 
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Erro ao criar pagamento" });
+  console.error("❌ ERRO MP COMPLETO:");
+
+  if (error.cause) {
+    console.log("CAUSE:", JSON.stringify(error.cause, null, 2));
   }
+
+  if (error.response) {
+    console.log("RESPONSE:", JSON.stringify(error.response, null, 2));
+  }
+
+  console.log("ERROR RAW:", error);
+
+  res.status(500).json({
+    error: "Erro ao processar pagamento",
+    detalhe: error.message || error
+  });
+}
 });
 
-app.get("/", (req, res) => {
-  res.send("Servidor rodando 🚀");
-});
-
-app.listen(3000, () => {
-  console.log("Servidor rodando na porta 3000");
+app.listen(3333, () => {
+  console.log("Servidor rodando na porta 3333 🚀");
 });
