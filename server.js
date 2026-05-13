@@ -78,27 +78,21 @@ res.json(response);
 }
 });
 
+app.get("/webhook", (req, res) => {
+  res.send("Webhook ativo");
+});
+
 app.post("/webhook", async (req, res) => {
 
   console.log("🔔 Webhook recebido:");
-
   console.log(JSON.stringify(req.body, null, 2));
 
-  try {
-
-    // responde rápido pro Mercado Pago
-    res.sendStatus(200);
-
-  } catch (error) {
-
-    console.log(error);
-
-    res.sendStatus(500);
-
-  }
+  res.sendStatus(200);
 
 });
 
-app.listen(3333, () => {
-  console.log("Servidor rodando na porta 3333 🚀");
+const PORT = process.env.PORT || 3333;
+
+app.listen(PORT, () => {
+  console.log(`Servidor rodando na porta ${PORT} 🚀`);
 });
