@@ -37,6 +37,10 @@ console.log("BODY RECEBIDO:", req.body);
       description: "Compra H2Sports",
       installments: Number(installments),
       payment_method_id: payment_method_id,
+
+      notification_url:
+  "https://h2sports-backend-1.onrender.com/webhook",
+
       payer: {
         email: payer.email || "test_user_123456@testuser.com",
         identification: payer.identification
@@ -72,6 +76,27 @@ res.json(response);
     detalhe: error.message || error
   });
 }
+});
+
+app.post("/webhook", async (req, res) => {
+
+  console.log("🔔 Webhook recebido:");
+
+  console.log(JSON.stringify(req.body, null, 2));
+
+  try {
+
+    // responde rápido pro Mercado Pago
+    res.sendStatus(200);
+
+  } catch (error) {
+
+    console.log(error);
+
+    res.sendStatus(500);
+
+  }
+
 });
 
 app.listen(3333, () => {
