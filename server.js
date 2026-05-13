@@ -78,13 +78,10 @@ res.json(response);
 }
 });
 
-app.get("/webhook", (req, res) => {
-  res.send("Webhook ativo");
-});
-
-app.post("/webhook", async (req, res) => {
+app.all("/webhook", (req, res) => {
 
   console.log("🔔 Webhook recebido:");
+  console.log("METHOD:", req.method);
   console.log(JSON.stringify(req.body, null, 2));
 
   res.sendStatus(200);
