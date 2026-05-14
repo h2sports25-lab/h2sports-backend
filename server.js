@@ -33,19 +33,24 @@ app.post("/process_payment", async (req, res) => {
     } = req.body;
 
     let paymentData = {
-      transaction_amount: Number(transaction_amount),
+  transaction_amount: Number(transaction_amount),
 
-      description: "Compra H2Sports",
+  description: "Compra H2Sports",
 
-      payment_method_id,
+  payment_method_id,
 
-      notification_url:
-        "https://h2sports-backend-1.onrender.com/webhook",
+  notification_url:
+    "https://h2sports-backend-1.onrender.com/webhook",
 
-      payer: {
-        email: payer.email || "cliente@email.com"
-      }
-    };
+  external_reference:
+    `H2-${Date.now()}`,
+
+  payer: {
+    email:
+      payer?.email ||
+      "cliente@email.com"
+  }
+};
 
     // CARTÃO
     if (payment_method_id !== "pix") {
