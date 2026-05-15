@@ -87,32 +87,34 @@ app.post("/process_payment", async (req, res) => {
         body: paymentData
       });
 
-    console.log(
-      "RESPOSTA:",
-      JSON.stringify(response, null, 2)
-    );
+    console.log("===== RESPOSTA MP =====");
+console.log(JSON.stringify(response, null, 2));
+console.log("=======================");
 
     // PIX
-    if (payment_method_id === "pix") {
+if (payment_method_id === "pix") {
 
-      return res.json({
+  return res.json({
 
-        status:
-          response.status,
+    status:
+      response.status,
 
-        qr_code:
-          response
-            .point_of_interaction
-            ?.transaction_data
-            ?.qr_code,
+    payment_method_id:
+      response.payment_method_id,
 
-        qr_code_base64:
-          response
-            .point_of_interaction
-            ?.transaction_data
-            ?.qr_code_base64
-      });
-    }
+    qr_code:
+      response
+        .point_of_interaction
+        ?.transaction_data
+        ?.qr_code,
+
+    qr_code_base64:
+      response
+        .point_of_interaction
+        ?.transaction_data
+        ?.qr_code_base64
+  });
+}
 
     // CARTÃO
     return res.json({
