@@ -42,7 +42,9 @@ app.post("/process_payment", async (req, res) => {
     let paymentData = {
 
       transaction_amount:
-        Number(transaction_amount),
+  parseFloat(
+    Number(transaction_amount).toFixed(2)
+  ),
 
       description:
         "Compra H2Sports",
@@ -80,7 +82,10 @@ app.post("/process_payment", async (req, res) => {
       }
     }
 
-    console.log(paymentData);
+    console.log(
+  "VALOR FINAL:",
+  paymentData.transaction_amount
+);
 
     const response =
       await payment.create({
