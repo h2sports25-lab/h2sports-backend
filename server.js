@@ -1,17 +1,25 @@
 import express from "express";
 import cors from "cors";
-import mercadopago from "mercadopago";
+
+import {
+  MercadoPagoConfig,
+  Payment
+} from "mercadopago";
 
 const app = express();
 
 app.use(cors({ origin: "*" }));
 app.use(express.json());
 
-mercadopago.configure({
-  access_token:
-    "APP_USR-5416772088524473-042915-734b5835dffc44c01a9fcb044b1d05b8-3320971428"
-});
+const client =
+  new MercadoPagoConfig({
 
+    accessToken:
+      "APP_USR-5416772088524473-042915-734b5835dffc44c01a9fcb044b1d05b8-3320971428"
+  });
+
+const payment =
+  new Payment(client);
 // rota teste
 app.get("/", (req, res) => {
   res.send("API funcionando 🚀");
@@ -74,9 +82,9 @@ app.post("/process_payment", async (req, res) => {
     }
 
     const response =
-      await mercadopago.payment.create(
-        paymentData
-      );
+  await payment.create({
+    body: paymentData
+  });
 
     console.log(
       "RESPOSTA:",
@@ -89,7 +97,7 @@ app.post("/process_payment", async (req, res) => {
       return res.json({
 
         status:
-          response.body.status,
+          response.status,
 
         qr_code:
           response.body
@@ -109,10 +117,10 @@ app.post("/process_payment", async (req, res) => {
     res.json({
 
       status:
-        response.body.status,
+        response.status,
 
       status_detail:
-        response.body.status_detail
+        response.status_detail
     });
 
   } catch (error) {
