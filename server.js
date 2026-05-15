@@ -223,40 +223,40 @@ app.get(
 );
 
 
-// WEBHOOK
 app.all("/webhook", async (req, res) => {
 
   try {
 
     const paymentId =
-  req.body?.data?.id;
+      req.body?.data?.id;
 
-const type =
-  req.body?.type;
+    const type =
+      req.body?.type;
 
-if (
-  !paymentId ||
-  type !== "payment"
-) {
-  return res.sendStatus(200);
-}
+    if (
+      !paymentId ||
+      type !== "payment"
+    ) {
+      return res.sendStatus(200);
+    }
+
     const paymentInfo =
       await payment.get({
         id: paymentId
       });
 
     console.log(
-  JSON.stringify(
-    paymentInfo.response,
-    null,
-    2
-  )
-);
+      JSON.stringify(
+        paymentInfo,
+        null,
+        2
+      )
+    );
 
     if (
-  paymentInfo.response.status ===
-  "approved"
-) {
+      paymentInfo.status ===
+      "approved"
+    ) {
 
       const snapshot =
         await db
@@ -292,7 +292,6 @@ if (
     return res.sendStatus(500);
   }
 });
-
 const PORT =
   process.env.PORT || 3333;
 
