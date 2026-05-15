@@ -145,15 +145,51 @@ if (payment_method_id === "pix") {
 });
 
 // WEBHOOK
-app.all("/webhook", (req, res) => {
+app.post("/webhook", async (req, res) => {
 
-  console.log("🔔 Webhook recebido:");
-  console.log("METHOD:", req.method);
-  console.log(
-    JSON.stringify(req.body, null, 2)
-  );
+  try {
 
-  res.sendStatus(200);
+    console.log("🔔 WEBHOOK:");
+    console.log(JSON.stringify(req.body, null, 2));
+
+    const paymentId =
+      req.body?.data?.id;
+
+    if (!paymentId) {
+      return res.sendStatus(200);
+    }
+
+    // BUSCA PAGAMENTO
+    const paymentInfo =
+      await payment.get({
+        id: paymentId
+      });
+
+    console.log(
+      "PAGAMENTO:",
+      JSON.stringify(paymentInfo, null, 2)
+    );
+
+    // PIX PAGO
+    if (paymentInfo.status === "approved") {
+
+      console.log("✅ PIX APROVADO");
+
+      /*
+        AQUI você salva o pedido no banco
+        Firebase / Mongo / Supabase etc
+      */
+
+    }
+
+    return res.sendStatus(200);
+
+  } catch (error) {
+
+    console.error(error);
+
+    return res.sendStatus(500);
+  }
 });
 
 const PORT =
