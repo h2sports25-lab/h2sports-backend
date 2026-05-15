@@ -73,7 +73,6 @@ app.post("/process_payment", async (req, res) => {
       paymentData.installments =
         Number(installments);
 
-      // só adiciona se existir
       if (payer?.identification) {
 
         paymentData.payer.identification =
@@ -81,10 +80,12 @@ app.post("/process_payment", async (req, res) => {
       }
     }
 
+    console.log(paymentData);
+
     const response =
-  await payment.create({
-    body: paymentData
-  });
+      await payment.create({
+        body: paymentData
+      });
 
     console.log(
       "RESPOSTA:",
@@ -100,13 +101,13 @@ app.post("/process_payment", async (req, res) => {
           response.status,
 
         qr_code:
-          response.body
+          response
             .point_of_interaction
             ?.transaction_data
             ?.qr_code,
 
         qr_code_base64:
-          response.body
+          response
             .point_of_interaction
             ?.transaction_data
             ?.qr_code_base64
@@ -114,7 +115,7 @@ app.post("/process_payment", async (req, res) => {
     }
 
     // CARTÃO
-    res.json({
+    return res.json({
 
       status:
         response.status,
@@ -125,13 +126,13 @@ app.post("/process_payment", async (req, res) => {
 
   } catch (error) {
 
-    console.error(
-      error.response?.data || error
-    );
+    console.error("ERRO MP:");
+    console.error(error);
 
-    res.status(500).json({
-      error:
-        "Erro ao processar pagamento"
+    return res.status(500).json({
+      error: "Erro ao processar pagamento",
+      details: error.message,
+      cause: error.cause || null
     });
   }
 });
