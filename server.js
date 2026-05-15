@@ -64,8 +64,7 @@ app.post("/process_payment", async (req, res) => {
       payment_method_id,
 
       notification_url:
-        "https://h2sports-backend-1.onrender.com/webhook",
-
+        "https://h2sports-backend.onrender.com/webhook?source_news=webhooks",
       external_reference:
         `H2-${Date.now()}`,
 
