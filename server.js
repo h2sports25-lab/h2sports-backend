@@ -1,3 +1,19 @@
+import admin from "firebase-admin";
+
+import fs from "fs";
+
+const serviceAccount = JSON.parse(
+  fs.readFileSync(
+    "./firebase-service-account.json",
+    "utf8"
+  )
+);
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount)
+});
+
+const db = admin.firestore();
+
 import express from "express";
 import cors from "cors";
 
@@ -99,6 +115,27 @@ console.log("=======================");
     // PIX
 if (payment_method_id === "pix") {
 
+await db.collection("orders").add({
+
+  paymentId: response.id,
+
+  status: "pending",
+
+  paymentMethod: payment_method_id,
+
+  customerEmail:
+    payer?.email || "",
+
+  total:
+    Number(transaction_amount),
+
+  createdAt:
+    new Date(),
+
+  items:
+    req.body.items || []
+});
+
   return res.json({
 
     status:
@@ -145,41 +182,63 @@ if (payment_method_id === "pix") {
 });
 
 // WEBHOOK
-app.post("/webhook", async (req, res) => {
+app.all("/webhook", async (req, res) => {
 
   try {
 
-    console.log("🔔 WEBHOOK:");
-    console.log(JSON.stringify(req.body, null, 2));
-
     const paymentId =
-      req.body?.data?.id;
+  req.body?.data?.id;
 
-    if (!paymentId) {
-      return res.sendStatus(200);
-    }
+const type =
+  req.body?.type;
 
-    // BUSCA PAGAMENTO
+if (
+  !paymentId ||
+  type !== "payment"
+) {
+  return res.sendStatus(200);
+}
     const paymentInfo =
       await payment.get({
         id: paymentId
       });
 
     console.log(
-      "PAGAMENTO:",
-      JSON.stringify(paymentInfo, null, 2)
-    );
+  JSON.stringify(
+    paymentInfo.response,
+    null,
+    2
+  )
+);
 
-    // PIX PAGO
-    if (paymentInfo.status === "approved") {
+    if (
+  paymentInfo.response.status ===
+  "approved"
+) {
 
-      console.log("✅ PIX APROVADO");
+      const snapshot =
+        await db
+          .collection("orders")
+          .where(
+            "paymentId",
+            "==",
+            Number(paymentId)
+          )
+          .get();
 
-      /*
-        AQUI você salva o pedido no banco
-        Firebase / Mongo / Supabase etc
-      */
+      snapshot.forEach(async (doc) => {
 
+        await doc.ref.update({
+
+          status: "approved",
+
+          approvedAt:
+            new Date()
+        });
+
+      });
+
+      console.log("✅ PEDIDO APROVADO");
     }
 
     return res.sendStatus(200);
