@@ -177,6 +177,55 @@ await db.collection("orders").add({
   }
 });
 
+// rota verificar pagamento
+app.get(
+  "/check-payment/:paymentId",
+  async (req, res) => {
+
+    try {
+
+      const paymentId =
+        Number(req.params.paymentId);
+
+      const snapshot =
+        await db
+          .collection("orders")
+          .where(
+            "paymentId",
+            "==",
+            paymentId
+          )
+          .get();
+
+      if (snapshot.empty) {
+
+        return res.json({
+          status: "not_found"
+        });
+      }
+
+      const order =
+        snapshot.docs[0].data();
+
+      return res.json({
+        status: order.status
+      });
+
+    } catch (error) {
+
+      console.error(error);
+
+      return res.status(500).json({
+        error:
+          "Erro ao verificar pagamento"
+      });
+    }
+  }
+);
+
+// WEBHOOK
+app.post("/webhook", async (req, res) => {
+
 // WEBHOOK
 app.all("/webhook", async (req, res) => {
 
