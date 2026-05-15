@@ -223,8 +223,6 @@ app.get(
   }
 );
 
-// WEBHOOK
-app.post("/webhook", async (req, res) => {
 
 // WEBHOOK
 app.all("/webhook", async (req, res) => {
