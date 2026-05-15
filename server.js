@@ -1,16 +1,15 @@
 import express from "express";
 import cors from "cors";
-import pkg from "mercadopago";
-
-const { MercadoPagoConfig, Payment } = pkg;
+import mercadopago from "mercadopago";
 
 const app = express();
 
 app.use(cors({ origin: "*" }));
 app.use(express.json());
 
-const client = new MercadoPagoConfig({
-  accessToken: "APP_USR-5416772088524473-042915-734b5835dffc44c01a9fcb044b1d05b8-3320971428"
+mercadopago.configure({
+  access_token:
+    "APP_USR-5416772088524473-042915-734b5835dffc44c01a9fcb044b1d05b8-3320971428"
 });
 
 // rota teste
@@ -33,90 +32,119 @@ app.post("/process_payment", async (req, res) => {
     } = req.body;
 
     let paymentData = {
-  transaction_amount: Number(transaction_amount),
 
-  description: "Compra H2Sports",
+      transaction_amount:
+        Number(transaction_amount),
 
-  payment_method_id,
+      description:
+        "Compra H2Sports",
 
-  notification_url:
-    "https://h2sports-backend-1.onrender.com/webhook",
+      payment_method_id,
 
-  external_reference:
-    `H2-${Date.now()}`,
+      notification_url:
+        "https://h2sports-backend-1.onrender.com/webhook",
 
-  payer: {
-    email:
-      payer?.email ||
-      "cliente@email.com"
-  }
-};
+      external_reference:
+        `H2-${Date.now()}`,
+
+      payer: {
+        email:
+          payer?.email ||
+          "cliente@email.com"
+      }
+    };
 
     // CARTÃO
-    if (payment_method_id !== "pix") {
+    if (
+      payment_method_id !== "pix" &&
+      payment_method_id !== "account_money"
+    ) {
 
       paymentData.token = token;
 
       paymentData.installments =
         Number(installments);
 
-      paymentData.payer.identification =
-        payer.identification;
+      // só adiciona se existir
+      if (payer?.identification) {
+
+        paymentData.payer.identification =
+          payer.identification;
+      }
     }
 
-    const payment = new Payment(client);
-
-    const response = await payment.create({
-      body: paymentData
-    });
+    const response =
+      await mercadopago.payment.create(
+        paymentData
+      );
 
     console.log(
       "RESPOSTA:",
       JSON.stringify(response, null, 2)
     );
 
+    // PIX
     if (payment_method_id === "pix") {
 
       return res.json({
-        status: response.status,
+
+        status:
+          response.body.status,
 
         qr_code:
-          response.point_of_interaction
-            ?.transaction_data?.qr_code,
+          response.body
+            .point_of_interaction
+            ?.transaction_data
+            ?.qr_code,
 
         qr_code_base64:
-          response.point_of_interaction
-            ?.transaction_data?.qr_code_base64
+          response.body
+            .point_of_interaction
+            ?.transaction_data
+            ?.qr_code_base64
       });
     }
 
-  
+    // CARTÃO
     res.json({
-      status: response.status,
-      status_detail: response.status_detail
+
+      status:
+        response.body.status,
+
+      status_detail:
+        response.body.status_detail
     });
 
   } catch (error) {
 
-    console.error(error);
+    console.error(
+      error.response?.data || error
+    );
 
     res.status(500).json({
-      error: "Erro ao processar pagamento"
+      error:
+        "Erro ao processar pagamento"
     });
   }
 });
+
+// WEBHOOK
 app.all("/webhook", (req, res) => {
 
   console.log("🔔 Webhook recebido:");
   console.log("METHOD:", req.method);
-  console.log(JSON.stringify(req.body, null, 2));
+  console.log(
+    JSON.stringify(req.body, null, 2)
+  );
 
   res.sendStatus(200);
-
 });
 
-const PORT = process.env.PORT || 3333;
+const PORT =
+  process.env.PORT || 3333;
 
 app.listen(PORT, () => {
-  console.log(`Servidor rodando na porta ${PORT} 🚀`);
+  console.log(
+    `Servidor rodando na porta ${PORT} 🚀`
+  );
 });
