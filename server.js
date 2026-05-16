@@ -321,90 +321,66 @@ WEBHOOK
 ========================================
 */
 
-app.post(
-  "/webhook",
-  async (req, res) => {
+app.post("/webhook", async (req, res) => {
+  try {
 
-    try {
+    console.log("WEBHOOK RECEBIDO:");
+    console.log(JSON.stringify(req.body, null, 2));
 
-      console.log(
-        "WEBHOOK RECEBIDO:"
-      );
+    const paymentId =
+      req.body.data?.id ||
+      req.body.resource;
 
-      console.log(
-        JSON.stringify(
-          req.body,
-          null,
-          2
-        )
-      );
-
-      const paymentId =
-        req.body?.data?.id;
-
-      const type =
-        req.body?.type;
-
-      if (
-        !paymentId ||
-        type !== "payment"
-      ) {
-
-        return res.sendStatus(200);
-      }
-
-      const paymentInfo =
-        await payment.get({
-          id: paymentId
-        });
-
-      console.log(
-        "STATUS REAL:",
-        paymentInfo.status
-      );
-
-      if (
-        paymentInfo.status ===
-        "approved"
-      ) {
-
-        const snapshot =
-          await db
-            .collection("orders")
-            .where(
-              "paymentId",
-              "==",
-              Number(paymentId)
-            )
-            .get();
-
-        for (const doc of snapshot.docs) {
-
-          await doc.ref.update({
-
-            status:
-              "approved",
-
-            approvedAt:
-              new Date()
-          });
-        }
-
-        console.log(
-          "✅ PEDIDO APROVADO"
-        );
-      }
-
+    if (!paymentId) {
       return res.sendStatus(200);
-
-    } catch (error) {
-
-      console.error(error);
-
-      return res.sendStatus(500);
     }
+
+    const payment =
+      await paymentClient.get({
+        id: paymentId
+      });
+
+    console.log("STATUS REAL:", payment.status);
+
+    if (payment.status === "approved") {
+
+      const externalReference =
+        payment.external_reference;
+
+      await db
+        .collection("orders")
+        .where(
+          "externalReference",
+          "==",
+          externalReference
+        )
+        .get()
+        .then(async snapshot => {
+
+          if (!snapshot.empty) {
+
+            const doc =
+              snapshot.docs[0];
+
+            await doc.ref.update({
+              status: "approved",
+              paid: true,
+              approvedAt: new Date()
+            });
+
+            console.log("PAGAMENTO APROVADO!");
+          }
+        });
+    }
+
+    res.sendStatus(200);
+
+  } catch (error) {
+
+    console.error(error);
+    res.sendStatus(500);
   }
-);
+});
 
 /*
 ========================================
