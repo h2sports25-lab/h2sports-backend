@@ -185,28 +185,27 @@ app.post(
 
         return res.json({
 
-          id:
-            response.body.id,
+  paymentId:
+    response.body.id,
 
-          status:
-            response.body.status,
+  status:
+    response.body.status,
 
-          payment_method_id:
-            response.body
-              .payment_method_id,
+  payment_method_id:
+    response.body.payment_method_id,
 
-          qr_code:
-            response.body
-              .point_of_interaction
-              ?.transaction_data
-              ?.qr_code,
+  qr_code:
+    response.body
+      .point_of_interaction
+      ?.transaction_data
+      ?.qr_code,
 
-          qr_code_base64:
-            response.body
-              .point_of_interaction
-              ?.transaction_data
-              ?.qr_code_base64
-        });
+  qr_code_base64:
+    response.body
+      .point_of_interaction
+      ?.transaction_data
+      ?.qr_code_base64
+});
       }
 
       /*
