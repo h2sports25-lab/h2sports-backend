@@ -124,29 +124,23 @@ app.post(
         paymentData.transaction_amount
       );
 
-      const response =
-  await payment.create({
-    body: paymentData
-  });
+      const paymentResult =
+        await payment.create({
+          body: paymentData
+        });
 
-const paymentResult =
-  paymentResult || response;
+      console.log(
+        "===== RESPOSTA MP ====="
+      );
 
-console.log(
-  "===== RESPOSTA MP ====="
-);
+      console.log(
+        JSON.stringify(
+          paymentResult,
+          null,
+          2
+        )
+      );
 
-console.log(
-  JSON.stringify(
-    paymentResult,
-    null,
-    2
-  )
-);
-
-console.log(
-  "======================="
-);
       console.log(
         "======================="
       );
@@ -191,27 +185,27 @@ console.log(
 
         return res.json({
 
-  paymentId:
-    paymentResult.id,
+          paymentId:
+            paymentResult.id,
 
-  status:
-    paymentResult.status,
+          status:
+            paymentResult.status,
 
-  payment_method_id:
-    paymentResult.payment_method_id,
+          payment_method_id:
+            paymentResult.payment_method_id,
 
-  qr_code:
-    paymentResult
-      .point_of_interaction
-      ?.transaction_data
-      ?.qr_code,
+          qr_code:
+            paymentResult
+              .point_of_interaction
+              ?.transaction_data
+              ?.qr_code,
 
-  qr_code_base64:
-    paymentResult
-      .point_of_interaction
-      ?.transaction_data
-      ?.qr_code_base64
-});
+          qr_code_base64:
+            paymentResult
+              .point_of_interaction
+              ?.transaction_data
+              ?.qr_code_base64
+        });
       }
 
       /*
@@ -220,10 +214,10 @@ console.log(
       ========================================
       */
 
-     return res.json({
+      return res.json({
 
-  paymentId:
-    paymentResult.id,
+        paymentId:
+          paymentResult.id,
 
         status:
           paymentResult.status,
@@ -360,11 +354,11 @@ app.post(
 
       console.log(
         "STATUS REAL:",
-        paymentInfo.body.status
+        paymentInfo.status
       );
 
       if (
-        paymentInfo.body.status ===
+        paymentInfo.status ===
         "approved"
       ) {
 
