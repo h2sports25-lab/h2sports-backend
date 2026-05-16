@@ -23,11 +23,8 @@ const app = express();
 app.use(cors({ origin: "*" }));
 app.use(express.json());
 
-
-
 const client =
   new MercadoPagoConfig({
-
     accessToken:
       process.env.MP_ACCESS_TOKEN
   });
@@ -35,12 +32,21 @@ const client =
 const payment =
   new Payment(client);
 
+/*
+========================================
+ROTA TESTE
+========================================
+*/
 
 app.get("/", (req, res) => {
-
   res.send("API funcionando 🚀");
 });
 
+/*
+========================================
+CRIAR PAGAMENTO
+========================================
+*/
 
 app.post(
   "/process_payment",
@@ -228,9 +234,7 @@ app.post(
         "ERRO MP:"
       );
 
-      console.error(
-        error
-      );
+      console.error(error);
 
       return res.status(500).json({
 
@@ -248,6 +252,10 @@ app.post(
 );
 
 /*
+========================================
+VERIFICAR PAGAMENTO
+========================================
+*/
 
 app.get(
   "/check-payment/:paymentId",
@@ -302,7 +310,11 @@ app.get(
   }
 );
 
-
+/*
+========================================
+WEBHOOK
+========================================
+*/
 
 app.post(
   "/webhook",
@@ -361,19 +373,17 @@ app.post(
             )
             .get();
 
-        snapshot.forEach(
-          async (doc) => {
+        for (const doc of snapshot.docs) {
 
-            await doc.ref.update({
+          await doc.ref.update({
 
-              status:
-                "approved",
+            status:
+              "approved",
 
-              approvedAt:
-                new Date()
-            });
-          }
-        );
+            approvedAt:
+              new Date()
+          });
+        }
 
         console.log(
           "✅ PEDIDO APROVADO"
@@ -391,6 +401,11 @@ app.post(
   }
 );
 
+/*
+========================================
+INICIAR SERVIDOR
+========================================
+*/
 
 const PORT =
   process.env.PORT || 3333;
