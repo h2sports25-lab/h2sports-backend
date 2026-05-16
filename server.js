@@ -125,22 +125,28 @@ app.post(
       );
 
       const response =
-        await payment.create({
-          body: paymentData
-        });
+  await payment.create({
+    body: paymentData
+  });
 
-      console.log(
-        "===== RESPOSTA MP ====="
-      );
+const paymentResult =
+  paymentResult || response;
 
-      console.log(
-        JSON.stringify(
-          response.body,
-          null,
-          2
-        )
-      );
+console.log(
+  "===== RESPOSTA MP ====="
+);
 
+console.log(
+  JSON.stringify(
+    paymentResult,
+    null,
+    2
+  )
+);
+
+console.log(
+  "======================="
+);
       console.log(
         "======================="
       );
@@ -160,7 +166,7 @@ app.post(
           .add({
 
             paymentId:
-              response.body.id,
+              paymentResult.id,
 
             status:
               "pending",
@@ -186,22 +192,22 @@ app.post(
         return res.json({
 
   paymentId:
-    response.body.id,
+    paymentResult.id,
 
   status:
-    response.body.status,
+    paymentResult.status,
 
   payment_method_id:
-    response.body.payment_method_id,
+    paymentResult.payment_method_id,
 
   qr_code:
-    response.body
+    paymentResult
       .point_of_interaction
       ?.transaction_data
       ?.qr_code,
 
   qr_code_base64:
-    response.body
+    paymentResult
       .point_of_interaction
       ?.transaction_data
       ?.qr_code_base64
@@ -217,13 +223,13 @@ app.post(
      return res.json({
 
   paymentId:
-    response.body.id,
+    paymentResult.id,
 
         status:
-          response.body.status,
+          paymentResult.status,
 
         status_detail:
-          response.body
+          paymentResult
             .status_detail
       });
 
