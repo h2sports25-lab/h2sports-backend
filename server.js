@@ -82,7 +82,7 @@ app.post(
         payment_method_id,
 
         notification_url:
-          "https://h2sports-backend.onrender.com/webhook",
+          "https://h2sports-backend-1.onrender.com/webhook",
 
         external_reference:
           `H2-${Date.now()}`,
@@ -123,6 +123,12 @@ app.post(
         "VALOR FINAL:",
         paymentData.transaction_amount
       );
+
+      /*
+      ========================================
+      CRIAR PAGAMENTO MP
+      ========================================
+      */
 
       const paymentResult =
         await payment.create({
