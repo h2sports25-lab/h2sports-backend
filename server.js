@@ -29,7 +29,7 @@ const client =
       process.env.MP_ACCESS_TOKEN
   });
 
-const payment =
+const paymentClient =
   new Payment(client);
 
 /*
@@ -131,9 +131,9 @@ app.post(
       */
 
       const paymentResult =
-        await payment.create({
-          body: paymentData
-        });
+  await paymentClient.create({
+    body: paymentData
+  });
 
       console.log(
         "===== RESPOSTA MP ====="
@@ -335,17 +335,22 @@ app.post("/webhook", async (req, res) => {
       return res.sendStatus(200);
     }
 
-    const payment =
-      await paymentClient.get({
-        id: paymentId
-      });
+    const paymentInfo =
+  await paymentClient.get({
+    id: paymentId
+  });
 
-    console.log("STATUS REAL:", payment.status);
+console.log(
+  "STATUS REAL:",
+  paymentInfo.status
+);
 
-    if (payment.status === "approved") {
+if (
+  paymentInfo.status === "approved"
+) {
 
-      const externalReference =
-        payment.external_reference;
+  const externalReference =
+    paymentInfo.external_reference;
 
       await db
         .collection("orders")
